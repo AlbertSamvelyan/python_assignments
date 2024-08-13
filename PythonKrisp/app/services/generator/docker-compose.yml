@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  generator:
+    build:
+      context: ./app/services/generator
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=services.generator
+      - FLASK_RUN_HOST=0.0.0.0
+    networks:
+      - app-network
+      
+networks:
+  app-network:
+    external: true
