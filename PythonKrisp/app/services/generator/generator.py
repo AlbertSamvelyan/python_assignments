@@ -3,7 +3,7 @@ import random
 
 app = Flask(__name__)
 
-#Some kind of defult home page
+# Generator service home page
 @app.route('/', methods=['GET', 'POST'])
 def home():
     return jsonify({"message": "GENERATOR SERVICE HOME PAGE:)"})
@@ -29,7 +29,6 @@ def generate_recommendation():
         return jsonify({"error": "viewer id is invalid or missing"})
 
     # Generate a pseudo-random number influenced by 'viewerid'
-    random.seed(viewerid)  # Seed the random number generator with 'viewerid'
     random_number = random.randint(1, 100)
 
     response = {
@@ -40,4 +39,4 @@ def generate_recommendation():
     return jsonify(response)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5000)

@@ -7,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 app = Flask(__name__)
 
-#Some kind of defult home page
+# Invoker service home page
 @app.route('/', methods=['GET', 'POST'])
 def home():
     return jsonify({"message": "INVOKER SERVICE HOME PAGE"})
@@ -16,11 +16,13 @@ def home():
 local_cache = TTLCache(maxsize=3, ttl=10)
 
 # Initialize Redis client
-redis_host = os.getenv('REDIS_HOST', 'localhost')
-redis_client = redis.StrictRedis(host=redis_host, port=6379, db=0, decode_responses=True)
+# PLEASE PROVIDE YOUR IP HERE!!!
+redis_host = os.getenv('REDIS_HOST', '192.168.50.162')
+redis_client = redis.Redis(host='192.168.50.162', port=6379)
 
 # URL for the GENERATOR service
-GENERATOR_URL = 'http://generator:5000/generate_recommendation'
+# PLEASE PROVIDE YOUR IP HERE!!!
+GENERATOR_URL = 'http://192.168.50.162:5000/generate_recommendation'
 
 def runcascade(user_id):
     def fetch_recommendation(model_name):
@@ -38,9 +40,14 @@ def runcascade(user_id):
     merged_result = {"results": results}
     return merged_result
 
-@app.route('/recommend', methods=['GET'])
+@app.route('/recommend', methods=['GET', 'POST'])
 def recommend():
-    user_id = request.args.get('user_id')
+    redis_client.ping()
+    if request.method == 'POST':
+        data = request.get_json()
+        user_id = data.get('user_id')
+    else:
+        user_id = request.args.get('user_id')
     
     # Check local cache
     if user_id in local_cache:
@@ -61,4 +68,4 @@ def recommend():
     return jsonify(recommendations)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5001)
